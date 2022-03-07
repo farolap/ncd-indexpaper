@@ -1,68 +1,83 @@
-import { storage, Context } from "near-sdk-core"
+import { PersistentMap } from "near-sdk-core";
+
+// Create the indexing Persistent map variable. From this variable you can store and check if the paper was indexed.
+export const papers = new PersistentMap<string, Paper>("v");
+
+// Create the paper class where it defines the necessary input parameters for indexing a paper.
+@nearBindgen
+class Paper {
+  public doi: string
+  public title: string
+  public year: string
+  public author: string
+  public journal: string
+  public volume: string
+  public issn: string
+  public pages: string
+
+  constructor(
+    title: string,
+    author: string,
+    year: string,
+    journal: string,
+    volume: string,
+    issn: string,
+    pages: string,
+    doi: string)
+      {
+      this.title = title;
+      this.author = author;
+      this.year = year;
+      this.journal = journal;
+      this.volume = volume;
+      this.issn = issn;
+      this.pages = pages;
+      this.doi = doi;}
+}
+
 
 @nearBindgen
 export class Contract {
-  private message: string = 'hello world'
 
-  // return the string 'hello world'
-  helloWorld(): string {
-    return this.message
-  }
-
-  // read the given key from account (contract) storage
-  read(key: string): string {
-    if (isKeyInStorage(key)) {
-      return `✅ Key [ ${key} ] has value [ ${storage.getString(key)!} ] and "this.message" is [ ${this.message} ]`
-    } else {
-      return `🚫 Key [ ${key} ] not found in storage. ( ${this.storageReport()} )`
+    //This function locates if the paper was indexed by its Digital Object Identifier (doi)
+    checkifindexed(doi: string): Paper {
+        let index = 'Not indexed';
+        let check = papers.get(doi);
+        if (papers.get(doi)!==null){
+           index   = 'indexed';
+        }
+        return check
     }
-  }
 
-  /**
-  write the given value at the given key to account (contract) storage
-  ---
-  note: this is what account storage will look like AFTER the write() method is called the first time
-  ╔════════════════════════════════╤══════════════════════════════════════════════════════════════════════════════════╗
-  ║                            key │ value                                                                            ║
-  ╟────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
-  ║                          STATE │ {                                                                                ║
-  ║                                │   "message": "data was saved"                                                    ║
-  ║                                │ }                                                                                ║
-  ╟────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
-  ║                       some-key │ some value                                                                       ║
-  ╚════════════════════════════════╧══════════════════════════════════════════════════════════════════════════════════╝
-   */
-  @mutateState()
-  write(key: string, value: string): string {
-    storage.set(key, value)
-    this.message = 'data was saved' // this is why we need the deorator @mutateState() above the method name
-    return `✅ Data saved. ( ${this.storageReport()} )`
-  }
+    //This function is the one that index the paper.
+    @mutateState()
+    indexpaper(
+        title: string,
+        author: string,
+        year: string,
+        journal: string,
+        volume: string,
+        issn: string,
+        pages: string,
+        doi: string): string{
+          let paper = new Paper(title,author,year,
+                                journal,volume,issn,pages,doi);
+          papers.set(doi, paper);
+          return 'Indexed as: '+paper.doi
+    }
+
+    //This function deletes the indexing if one commited an error. 
+    @mutateState()
+    delindexed(doi: string): string{
+        let index = checkifindexed(doi);
+        if (index===null){
+            return "Not indexed" 
+        }
+        papers.delete(doi);
+        return "Deleted"
+    }
 
 
-  // private helper method used by read() and write() above
-  private storageReport(): string {
-    return `storage [ ${Context.storageUsage} bytes ]`
-  }
 }
 
-/**
- * This function exists only to avoid a compiler error
- *
 
-ERROR TS2339: Property 'contains' does not exist on type 'src/singleton/assembly/index/Contract'.
-
-     return this.contains(key);
-                 ~~~~~~~~
- in ~lib/near-sdk-core/storage.ts(119,17)
-
-/Users/sherif/Documents/code/near/_projects/edu.t3/starter--near-sdk-as/node_modules/asbuild/dist/main.js:6
-        throw err;
-        ^
-
- * @param key string key in account storage
- * @returns boolean indicating whether key exists
- */
-function isKeyInStorage(key: string): bool {
-  return storage.hasKey(key)
-}
