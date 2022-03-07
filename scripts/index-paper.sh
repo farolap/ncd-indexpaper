@@ -32,14 +32,14 @@ echo
 echo '----------------------------------------------------------------'
 echo 'Paper details on the config.cfg'
 echo
-echo '-> Title:   '$title
+echo '-> Title:    '$title
 echo '-> Author(s):'$author
-echo '-> year:    '$year
-echo '-> journal: '$journal
-echo '-> volume:  '$volume
-echo '-> issn:    '$issn
-echo '-> pages:   '$pages
-echo '-> doi:     '$doi
+echo '-> year:     '$year
+echo '-> journal:  '$journal
+echo '-> volume:   '$volume
+echo '-> issn:     '$issn
+echo '-> pages:    '$pages
+echo '-> doi:      '$doi
 echo '----------------------------------------------------------------'
 
 
@@ -59,18 +59,21 @@ echo Deploying contract \(output is going to be ignored\)!
 near dev-deploy ../build/debug/singleton.wasm 1>/dev/null
 
 CONTRACT="$(grep -E '^dev-' -m 1 './neardev/dev-account')";
-echo ''
+echo
 echo 'Near dev account: ' $CONTRACT
 
 read -n1 -s -r -p $'Press space to continue...\n' key
 
 
+echo
 echo We will now check if the paper ${doi} is indexed:
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
 
+echo
 echo Now we will index the paper whose doi is ${doi}.
 near call $CONTRACT indexpaper '{"title": "'"${title}"'",
                 "author": "'"${author}"'",
@@ -81,18 +84,23 @@ near call $CONTRACT indexpaper '{"title": "'"${title}"'",
           	    "pages":"'"${pages}"'",
                 "doi":"'"${doi}"'"}' --accountId $CONTRACT
 
+echo
 echo We will check again if the paper ${doi} was succefully indexed:
 read -n1 -s -r -p $'Press space to continue...\n' key
 
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
+echo
 echo We will now delete the paper ${doi}.
 near call $CONTRACT delindexed '{"doi":"'${doi}'"}' --accountId $CONTRACT 
 
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
+echo
 echo And Now check again if it was deleted
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
