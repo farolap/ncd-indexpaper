@@ -40,13 +40,12 @@ class Paper {
 export class Contract {
 
     //This function locates if the paper was indexed by its Digital Object Identifier (doi)
-    checkifindexed(doi: string): Paper {
+    checkifindexed(doi: string): string {
         let index = 'Not indexed';
-        let check = papers.get(doi);
         if (papers.get(doi)!==null){
            index   = 'indexed';
         }
-        return check
+        return index
     }
 
     //This function is the one that index the paper.

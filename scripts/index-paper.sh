@@ -82,6 +82,8 @@ near call $CONTRACT indexpaper '{"title": "'"${title}"'",
                 "doi":"'"${doi}"'"}' --accountId $CONTRACT
 
 echo We will check again if the paper ${doi} was succefully indexed:
+read -n1 -s -r -p $'Press space to continue...\n' key
+
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
 read -n1 -s -r -p $'Press space to continue...\n' key
