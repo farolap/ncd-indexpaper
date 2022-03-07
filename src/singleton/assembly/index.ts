@@ -75,8 +75,6 @@ export class Contract {
         papers.delete(doi);
         return "Deleted"
     }
-
-
 }
 
 
