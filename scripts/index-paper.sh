@@ -62,19 +62,19 @@ CONTRACT="$(grep -E '^dev-' -m 1 './neardev/dev-account')";
 echo
 echo 'Near dev account: ' $CONTRACT
 
-read -n1 -s -r -p $'Press space to continue...\n' key
 
 
 echo
 echo We will now check if the paper ${doi} is indexed:
-near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
-
 echo
 read -n1 -s -r -p $'Press space to continue...\n' key
+near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
 
 echo
 echo Now we will index the paper whose doi is ${doi}.
+echo
+read -n1 -s -r -p $'Press space to continue...\n' key
 near call $CONTRACT indexpaper '{"title": "'"${title}"'",
                 "author": "'"${author}"'",
                 "year": "'"${year}"'",
@@ -86,21 +86,22 @@ near call $CONTRACT indexpaper '{"title": "'"${title}"'",
 
 echo
 echo We will check again if the paper ${doi} was succefully indexed:
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 
 echo
+echo We will now delete the paper ${doi}.
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
-echo
-echo We will now delete the paper ${doi}.
 near call $CONTRACT delindexed '{"doi":"'${doi}'"}' --accountId $CONTRACT 
 
 echo
+echo And Now check again if it was deleted
+echo
 read -n1 -s -r -p $'Press space to continue...\n' key
 
-echo
-echo And Now check again if it was deleted
 near view $CONTRACT checkifindexed '{"doi":"'${doi}'"}'
 

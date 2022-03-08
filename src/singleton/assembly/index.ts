@@ -69,11 +69,11 @@ export class Contract {
     @mutateState()
     delindexed(doi: string): string{
         let index = checkifindexed(doi);
-        if (index===null){
-            return "Not indexed" 
+        if (index==='Not indexed'){
+            return index 
         }
         papers.delete(doi);
-        return "Deleted"
+        return 'Deleted'
     }
 }
 
